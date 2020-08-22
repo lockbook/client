@@ -1,13 +1,12 @@
 ﻿using Core;
+using Markdig;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
-using Windows.UI.Core.Preview;
 using Windows.UI.Popups;
 using Windows.UI.Text;
 using Windows.UI.Xaml;
@@ -204,7 +203,6 @@ namespace lockbook {
             }
         }
 
-        // TODO replace with nicer: https://stackoverflow.com/questions/34538637/text-input-in-message-dialog-contentdialog
         private async Task<string> InputTextDialogAsync(string title) {
             TextBox inputTextBox = new TextBox {
                 AcceptsReturn = false,
@@ -366,6 +364,8 @@ namespace lockbook {
                 string docID = currentDocumentId;
                 string text;
                 editor.TextDocument.GetText(TextGetOptions.UseLf, out text);
+
+                var md = Markdown.ToHtml(text);
 
                 // Only save the document if no keystrokes have happened in the last 1 second
                 keyStrokeCount[docID]++;
