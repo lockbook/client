@@ -1,8 +1,11 @@
 ﻿using Core;
 using Markdig;
+using Markdig.Renderers;
+using Markdig.Syntax;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
@@ -365,7 +368,10 @@ namespace lockbook {
                 string text;
                 editor.TextDocument.GetText(TextGetOptions.UseLf, out text);
 
-                var md = Markdown.ToHtml(text);
+                var md = Markdown.Parse(text);
+                foreach (var element in md) {
+                    System.Diagnostics.Debug.WriteLine("this one: " + element);
+                }
 
                 // Only save the document if no keystrokes have happened in the last 1 second
                 keyStrokeCount[docID]++;
@@ -398,6 +404,23 @@ namespace lockbook {
                         break;
                 }
             }
+        }
+    }
+
+    public class MarkdownFormatter : RendererBase {
+        public MarkdownFormatter() {
+            ObjectRenderers.Add(new CodeBlockRenderer());
+        }
+        public override object Render(MarkdownObject markdownObject) {
+            System.Diagnostics.Debug.WriteLine(markdownObject);
+            return true;
+        }
+    }
+
+    public class CodeBlockRenderer : MarkdownObjectRenderer<MarkdownFormatter, HeadingBlock> {
+
+        protected override void Write(MarkdownFormatter renderer, HeadingBlock obj) {
+            System.Diagnostics.Debug.WriteLine("this one: " + obj);
         }
     }
 }
