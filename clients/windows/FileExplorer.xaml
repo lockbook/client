@@ -70,7 +70,7 @@
             </muxc:NavigationView.PaneFooter>
             <RichEditBox x:Name="editor"
                          IsEnabled="True"
-                         TextChanged="TextChanged"
+                         TextChanged="TextMaybeChanged"
                          BorderThickness="0"
                          DisabledFormattingAccelerators="All"
                          Background="Black">

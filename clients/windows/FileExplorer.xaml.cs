@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
+using Windows.UI;
 using Windows.UI.Popups;
 using Windows.UI.Text;
 using Windows.UI.Xaml;
@@ -362,16 +363,12 @@ namespace lockbook {
             }
         }
 
-        private async void TextChanged(object sender, RoutedEventArgs e) {
+        private async void TextMaybeChanged(object sender, RoutedEventArgs e) {
             if (currentDocumentId != "") {
                 string docID = currentDocumentId;
                 string text;
                 editor.TextDocument.GetText(TextGetOptions.UseLf, out text);
 
-                var md = Markdown.Parse(text);
-                foreach (var element in md) {
-                    System.Diagnostics.Debug.WriteLine("this one: " + element);
-                }
 
                 // Only save the document if no keystrokes have happened in the last 1 second
                 keyStrokeCount[docID]++;
@@ -379,6 +376,18 @@ namespace lockbook {
                 await Task.Delay(750);
                 if (current != keyStrokeCount[docID]) {
                     return;
+                }
+
+                var md = Markdown.Parse(text);
+                foreach (var element in md) {
+
+                    switch (element) {
+                        case HeadingBlock heading:
+                            System.Diagnostics.Debug.WriteLine("heading line: " + keyStrokeCount[docID]);
+
+                            editor.TextDocument.GetRange(heading.Span.Start, heading.Span.End + 1).CharacterFormat.ForegroundColor = Color.FromArgb(0x00, 0xff, 0x0, 0x0);
+                            break;
+                    }
                 }
 
                 var result = await CoreService.WriteDocument(docID, text);
