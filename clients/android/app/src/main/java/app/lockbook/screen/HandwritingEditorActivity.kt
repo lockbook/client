@@ -2,13 +2,14 @@ package app.lockbook.screen
 
 import android.animation.Animator
 import android.annotation.SuppressLint
+import android.content.ClipData
+import android.content.ClipDescription
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.view.GestureDetector
-import android.view.MotionEvent
-import android.view.SurfaceHolder
-import android.view.View
+import android.view.*
+import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
@@ -24,6 +25,7 @@ import kotlinx.android.synthetic.main.activity_handwriting_editor.*
 import timber.log.Timber
 import java.util.*
 
+
 class HandwritingEditorActivity : AppCompatActivity() {
     private lateinit var handwritingEditorViewModel: HandwritingEditorViewModel
     private var isFirstLaunch = true
@@ -37,16 +39,60 @@ class HandwritingEditorActivity : AppCompatActivity() {
         }
 
         override fun surfaceChanged(
-            holder: SurfaceHolder,
-            format: Int,
-            width: Int,
-            height: Int
+                holder: SurfaceHolder,
+                format: Int,
+                width: Int,
+                height: Int
         ) {
         }
 
         override fun surfaceDestroyed(holder: SurfaceHolder) {
         }
     }
+
+    private val toolBarOnLongClick =
+            View.OnLongClickListener { view ->
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
+
+                    val clipData = ClipData("temp",
+                            arrayOf(ClipDescription.MIMETYPE_TEXT_PLAIN), ClipData.Item("temp"))
+                    val dragShadowBuilder = View.DragShadowBuilder(view)
+
+                    view.startDragAndDrop(
+                            clipData,
+                            dragShadowBuilder,
+                            view,
+                            0
+                    )
+
+                    true
+                } else {
+                    false
+                }
+            }
+
+    private val toolbarDragListener =
+            View.OnDragListener { view, event ->
+                if(event != null) {
+                    when(event.action) {
+                        DragEvent.ACTION_DRAG_STARTED -> {
+
+                        }
+                        DragEvent.ACTION_DROP -> {
+                            val localState = event.localState as View
+                            
+                            view.x = localState.x
+                            view.y = localState.y
+
+                            view.visibility = View.VISIBLE
+                        }
+                    }
+
+                }
+
+                true
+            }
+
 
     private var autoSaveTimer = Timer()
     private val handler = Handler(requireNotNull(Looper.myLooper()))
@@ -70,24 +116,24 @@ class HandwritingEditorActivity : AppCompatActivity() {
 
         handwritingEditorViewModel =
             ViewModelProvider(
-                this,
-                HandwritingEditorViewModelFactory(application, id)
+                    this,
+                    HandwritingEditorViewModelFactory(application, id)
             ).get(HandwritingEditorViewModel::class.java)
 
         handwritingEditorViewModel.errorHasOccurred.observe(
-            this
+                this
         ) { errorText ->
             errorHasOccurred(errorText)
         }
 
         handwritingEditorViewModel.unexpectedErrorHasOccurred.observe(
-            this
+                this
         ) { errorText ->
             unexpectedErrorHasOccurred(errorText)
         }
 
         handwritingEditorViewModel.drawableReady.observe(
-            this
+                this
         ) {
             handwriting_editor.holder.addCallback(surfaceViewReadyCallback)
 
@@ -97,25 +143,25 @@ class HandwritingEditorActivity : AppCompatActivity() {
         }
 
         handwritingEditorViewModel.selectNewColor.observe(
-            this
+                this
         ) { colors ->
             selectNewColor(colors.first, colors.second)
         }
 
         handwritingEditorViewModel.setToolsVisibility.observe(
-            this
+                this
         ) { newVisibility ->
             changeToolsVisibility(newVisibility)
         }
 
         handwritingEditorViewModel.selectNewTool.observe(
-            this
+                this
         ) { tools ->
             selectNewTool(tools.second)
         }
 
         handwritingEditorViewModel.selectedNewPenSize.observe(
-            this
+                this
         ) { penSizes ->
             selectedNewPenSize(penSizes.first, penSizes.second)
         }
@@ -196,8 +242,8 @@ class HandwritingEditorActivity : AppCompatActivity() {
     }
 
     private fun selectedNewPenSize(
-        oldPenSize: HandwritingEditorView.PenSize?,
-        newPenSize: HandwritingEditorView.PenSize
+            oldPenSize: HandwritingEditorView.PenSize?,
+            newPenSize: HandwritingEditorView.PenSize
     ) {
         if (oldPenSize != null) {
             val previousButton = when (oldPenSize) {
@@ -308,34 +354,37 @@ class HandwritingEditorActivity : AppCompatActivity() {
             handwritingEditorViewModel.handleNewPenSizeSelected(HandwritingEditorView.PenSize.LARGE)
         }
 
+        handwriting_editor_tools_menu.setOnLongClickListener(toolBarOnLongClick)
+        handwriting_editor_tools_menu.setOnDragListener(toolbarDragListener)
+
         gestureDetector = GestureDetector(
-            applicationContext,
-            object : GestureDetector.OnGestureListener {
-                override fun onDown(e: MotionEvent?): Boolean = true
+                applicationContext,
+                object : GestureDetector.OnGestureListener {
+                    override fun onDown(e: MotionEvent?): Boolean = true
 
-                override fun onShowPress(e: MotionEvent?) {}
+                    override fun onShowPress(e: MotionEvent?) {}
 
-                override fun onSingleTapUp(e: MotionEvent?): Boolean {
-                    handwritingEditorViewModel.handleTouchEvent(handwriting_editor_tools_menu.visibility)
-                    return true
+                    override fun onSingleTapUp(e: MotionEvent?): Boolean {
+                        handwritingEditorViewModel.handleTouchEvent(handwriting_editor_tools_menu.visibility)
+                        return true
+                    }
+
+                    override fun onScroll(
+                            e1: MotionEvent?,
+                            e2: MotionEvent?,
+                            distanceX: Float,
+                            distanceY: Float
+                    ): Boolean = true
+
+                    override fun onLongPress(e: MotionEvent?) {}
+
+                    override fun onFling(
+                            e1: MotionEvent?,
+                            e2: MotionEvent?,
+                            velocityX: Float,
+                            velocityY: Float
+                    ): Boolean = true
                 }
-
-                override fun onScroll(
-                    e1: MotionEvent?,
-                    e2: MotionEvent?,
-                    distanceX: Float,
-                    distanceY: Float
-                ): Boolean = true
-
-                override fun onLongPress(e: MotionEvent?) {}
-
-                override fun onFling(
-                    e1: MotionEvent?,
-                    e2: MotionEvent?,
-                    velocityX: Float,
-                    velocityY: Float
-                ): Boolean = true
-            }
         )
 
         handwriting_editor.setOnTouchListener { _, event ->
@@ -349,37 +398,37 @@ class HandwritingEditorActivity : AppCompatActivity() {
 
     private fun startBackgroundSave() { // could this crash if the threads take too long to finish and they keep saving?!
         autoSaveTimer.schedule(
-            object : TimerTask() {
-                override fun run() {
-                    handler.post {
-                        if (!isFirstLaunch) {
-                            handwritingEditorViewModel.saveDrawing(
-                                Drawing(
-                                    Page(
-                                        Transformation(
-                                            Point(
-                                                handwriting_editor.drawingModel.currentView.transformation.translation.x,
-                                                handwriting_editor.drawingModel.currentView.transformation.translation.y
-                                            ),
-                                            handwriting_editor.drawingModel.currentView.transformation.scale,
+                object : TimerTask() {
+                    override fun run() {
+                        handler.post {
+                            if (!isFirstLaunch) {
+                                handwritingEditorViewModel.saveDrawing(
+                                        Drawing(
+                                                Page(
+                                                        Transformation(
+                                                                Point(
+                                                                        handwriting_editor.drawingModel.currentView.transformation.translation.x,
+                                                                        handwriting_editor.drawingModel.currentView.transformation.translation.y
+                                                                ),
+                                                                handwriting_editor.drawingModel.currentView.transformation.scale,
+                                                        )
+                                                ),
+                                                handwriting_editor.drawingModel.events.map { event ->
+                                                    Event(
+                                                            if (event.stroke == null) null else Stroke(
+                                                                    event.stroke.color,
+                                                                    event.stroke.points.toMutableList()
+                                                            )
+                                                    )
+                                                }.toMutableList()
                                         )
-                                    ),
-                                    handwriting_editor.drawingModel.events.map { event ->
-                                        Event(
-                                            if (event.stroke == null) null else Stroke(
-                                                event.stroke.color,
-                                                event.stroke.points.toMutableList()
-                                            )
-                                        )
-                                    }.toMutableList()
                                 )
-                            )
+                            }
                         }
                     }
-                }
-            },
-            1000,
-            TEXT_EDITOR_BACKGROUND_SAVE_PERIOD
+                },
+                1000,
+                TEXT_EDITOR_BACKGROUND_SAVE_PERIOD
         )
     }
 
