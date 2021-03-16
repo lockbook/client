@@ -25,8 +25,5 @@ extension UniversalColor {
     public static let separator = separatorColor
     public static let grid = gridColor
     public static let windowBackground = windowBackgroundColor
-    public static let secondarySystemBackground = windowBackground.withAlphaComponent(0.90)
-    public static let tertiarySystemBackground = windowBackground.withAlphaComponent(0.80)
-    public static let quaternarySystemBackground = windowBackground.withAlphaComponent(0.70)
 }
 #endif
