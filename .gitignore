@@ -82,10 +82,10 @@ core/target/
 clients/cli/target/
 core/lockbook_core.h
 
-server/target/
-server/**/*.rs.bk
-server/ca-certificate.crt
-server/qa-ca-certificate.crt
+server/server/target/
+server/server/**/*.rs.bk
+server/server/ca-certificate.crt
+server/server/qa-ca-certificate.crt
 .idea/
 *.iml
 clients/linux/target
@@ -93,9 +93,11 @@ integration_tests/target/
 containers/qa.env
 containers/prod.env
 containers/devtest.env
-server/qa-ca-certificate.crt
+server/server/qa-ca-certificate.crt
 clients/android/core/src/main/jniLibs/
 liblockbook_core.a
 lockbook_core.h
 *.log
 lockbook_core.dll
+server/admin-cli/target
+
