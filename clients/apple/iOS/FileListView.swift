@@ -7,11 +7,10 @@ struct FileListView: View {
     @State var showingAccount: Bool = false
     @State var creating: FileType?
     @State var creatingName: String = ""
+    @State var creatingFileExtension = ""
     let currentFolder: FileMetadata
     let account: Account
-    @Binding var moving: FileMetadata?
-    @State var renaming: FileMetadata?
-
+    
     var files: [FileMetadata] {
         core.files.filter {
             $0.parent == currentFolder.id && $0.id != currentFolder.id
@@ -22,18 +21,11 @@ struct FileListView: View {
         ScrollView {
             VStack {
                 creating.map { type in
-                    SyntheticFileCell(
-                        parent: currentFolder,
-                        type: type,
-                        name: $creatingName,
-                        onCommit: {
-                            handleCreate(meta: currentFolder, type: type)
-                        },
-                        onCancel: doneCreating,
-                        renaming: false
-                    )
+                    SyntheticFileCell(parent: currentFolder, type: type, nameField: $creatingName, fileExtension: $creatingFileExtension, onCreate: {
+                        handleCreate(meta: currentFolder, type: type)
+                    }, onCancel: doneCreating)
                 }
-
+                
                 ForEach(files) { meta in
                     renderCell(meta: meta)
                         .contextMenu(menuItems: {
@@ -42,19 +34,8 @@ struct FileListView: View {
                             }) {
                                 Label("Delete", systemImage: "trash.fill")
                             }
-                            Button(action: {
-                                moving = meta
-                            }, label: {
-                                Label("Move", systemImage: "folder")
-                            })
-                            Button(action: {
-                                renaming = meta
-                                creatingName = meta.name
-                            }, label: {
-                                Label("Rename", systemImage: "pencil")
-                            })
                         })
-
+                    
                 }
             }
             .padding(.leading, 20)
@@ -62,7 +43,6 @@ struct FileListView: View {
         .sheet(isPresented: $showingAccount, content: {
             AccountView(core: core, account: account)
         })
-        .sheet(item: $moving, content: renderMoveDialog)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button(action: { showingAccount.toggle() }) {
@@ -76,83 +56,27 @@ struct FileListView: View {
         .navigationBarTitle(currentFolder.name)
         
     }
-
-    func renderMoveDialog(meta: FileMetadata) -> some View {
-        let root = core.files.first(where: { $0.parent == $0.id })!
-        let wc = WithChild(root, core.files, { $0.id == $1.parent && $0.id != $1.id && $1.fileType == .Folder })
-
-        return VStack {
-            Text("Moving \(meta.name)").font(.headline)
-            NestedList(
-                node: wc,
-                row: { dest in
-                    Button(action: {
-                        moving = nil
-                        if case .failure(let err) = core.api.moveFile(id: meta.id, newParent: dest.id) {
-                            // Delaying this because the sheet has to go away before an alert can show up!
-                            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
-                                core.handleError(err)
-                            }
-                        } else {
-                            withAnimation {
-                                core.updateFiles()
-                            }
-                        }
-                    }, label: {
-                        Label(dest.name, systemImage: "folder")
-                    })
-                }
-            )
-            Spacer()
-        }.padding()
-    }
     
     func renderCell(meta: FileMetadata) -> AnyView {
-        if let isRenaming = renaming, isRenaming == meta {
-            return AnyView(
-                SyntheticFileCell(
-                    parent: meta,
-                    type: meta.fileType,
-                    name: $creatingName,
-                    onCommit: {
-                        if case .failure(let err) = core.api.renameFile(id: meta.id, name: creatingName) {
-                            core.handleError(err)
-                        } else {
-                            withAnimation {
-                                core.updateFiles()
-                            }
-                        }
-                    },
-                    onCancel: {
-                        withAnimation {
-                            renaming = nil
-                            creatingName = ""
-                        }
-                    },
-                    renaming: true
-                )
+        if meta.fileType == .Folder {
+            return AnyView (
+                NavigationLink(destination: FileListView(core: core, currentFolder: meta, account: account)) {
+                    FileCell(meta: meta)
+                }.isDetailLink(false)
             )
         } else {
-            if meta.fileType == .Folder {
-                return AnyView (
-                    NavigationLink(destination: FileListView(core: core, currentFolder: meta, account: account, moving: $moving)) {
-                        FileCell(meta: meta)
-                    }.isDetailLink(false)
-                )
+            if meta.name.hasSuffix(".draw") {
+                // This is how you can pop without the navigation bar
+                // https://stackoverflow.com/questions/56513568/ios-swiftui-pop-or-dismiss-view-programmatically
+                let dl = DrawingLoader(model: core.openDrawing, toolbar: ToolbarModel(), meta: meta)
+                return AnyView (NavigationLink(destination: dl.navigationBarTitle(meta.name, displayMode: .inline)) {
+                    FileCell(meta: meta)
+                })
             } else {
-                if meta.name.hasSuffix(".draw") {
-                    // This is how you can pop without the navigation bar
-                    // https://stackoverflow.com/questions/56513568/ios-swiftui-pop-or-dismiss-view-programmatically
-                    let dl = DrawingLoader(model: core.openDrawing, toolbar: ToolbarModel(), meta: meta)
-                    return AnyView (NavigationLink(destination: dl.navigationBarTitle(meta.name, displayMode: .inline)) {
-                        FileCell(meta: meta)
-                    })
-                } else {
-                    let el = EditorLoader(content: core.openDocument, meta: meta, files: core.files)
-                    return AnyView (NavigationLink(destination: el) {
-                        FileCell(meta: meta)
-                    })
-                }
+                let el = EditorLoader(content: core.openDocument, meta: meta, files: core.files)
+                return AnyView (NavigationLink(destination: el) {
+                    FileCell(meta: meta)
+                })
             }
         }
     }
@@ -167,7 +91,7 @@ struct FileListView: View {
     }
     
     func handleCreate(meta: FileMetadata, type: FileType) {
-        switch core.api.createFile(name: creatingName, dirId: meta.id, isFolder: type == .Folder) {
+        switch core.api.createFile(name: creatingName + creatingFileExtension, dirId: meta.id, isFolder: type == .Folder) {
         case .success(_):
             doneCreating()
             core.updateFiles()
@@ -186,14 +110,16 @@ struct FileListView: View {
     func newDocument() {
         withAnimation {
             creating = .Document
-            creatingName = ".md"
+            creatingName = ""
+            creatingFileExtension = ".md"
         }
     }
     
     func newDrawing() {
         withAnimation {
             creating = .Document
-            creatingName = ".draw"
+            creatingName = ""
+            creatingFileExtension = ".draw"
         }
     }
     
@@ -210,7 +136,9 @@ struct FileListView_Previews: PreviewProvider {
     
     static var previews: some View {
         NavigationView {
-            FileListView(core: core, showingAccount: false, currentFolder: core.root!, account: core.account!, moving: .constant(.none))
+            FileListView(core: core,
+                         showingAccount: false, currentFolder: core.root!,
+                         account: core.account!)
         }
     }
 }
