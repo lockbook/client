@@ -99,3 +99,5 @@ liblockbook_core.a
 lockbook_core.h
 *.log
 lockbook_core.dll
+
+public_site/resources

@@ -1,0 +1,10 @@
+####################### Banner #########################
+banner:
+  title : "Secure. Private. Reliable."
+  image : "images/screenshots.png"
+
+##################### Social ##########################
+description:
+  content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis a hendrerit dolor. Quisque vehicula commodo libero at vulputate. Curabitur dictum ornare libero. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Phasellus quis enim id velit tristique tempus. Donec placerat tortor at nulla lacinia, eu commodo ligula mattis. Aenean fringilla faucibus dolor et malesuada. Cras mi libero, pharetra ac est tempus, varius efficitur turpis. Praesent a tellus mi.
+
+            Pellentesque iaculis ac magna eu aliquam. Fusce at dolor tempus, cursus felis quis, bibendum lorem. Morbi id risus purus. Aliquam sit amet vulputate sapien. Donec tincidunt erat nisl."

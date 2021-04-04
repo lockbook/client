@@ -1,44 +1,93 @@
 languageCode = "en-us"
 title = "Lockbook"
-theme = "hallo"
-
-disableKinds = ["page", "section", "taxonomy", "taxonomyTerm"]
+theme = "sicily-hugo-theme"
 
 [Author]
-    name = "Lockbook"
+name = "Lockbook"
 
+#
+#[params]
+#
+#    [[params.links]]
+#        icon = "apple"
+#        title = "App Store"
+#        url = "mailto:mail@example.org"
+#
+#    [[params.links]]
+#       	iconset = "fas"
+#        icon = "terminal"
+#        title = "Terminal"
+#        url = "https://github.com/lockbook/lockbook/blob/master/docs/installing-cli.md"
+#
+#    [[params.links]]
+#        icon = "android"
+#        title = "Android"
+#        url = "https://github.com/lockbook/lockbook/blob/master/docs/installing-android.md"
+#
+#	[[params.links]]
+#        icon = "windows"
+#        title = "Windows"
+#        url = "https://github.com/lockbook/lockbook/blob/master/docs/installing-windows.md"
+#
+#
+#    [[params.links]]
+#        icon = "github"
+#        title = "Github"
+#        url = "https://github.com/lockbook/lockbook"
+#
+#
+#     [params.colors]
+#        background = "#1F2020"
+#        foreground = "#edf7ff"
+#        hover = "#ffba82"
 
-[params]
+[markup.goldmark.renderer]
+unsafe = true
+[[menu.company]]
+URL = "about"
+name = "About"
+[[menu.main]]
+URL = "about"
+name = "About"
+weight = 1
+[[menu.main]]
+URL = "pricing"
+name = "Pricing"
+weight = 2
+[[menu.main]]
+URL = "faq"
+name = "FAQ"
+weight = 3
+#[[menu.main]]
+#URL = "blog"
+#name = "Blog"
+#weight = 4
+[[menu.product]]
+URL = "pricing"
+name = "Pricing"
+[[menu.product]]
+URL = "platform"
+name = "Platform"
+[[menu.product]]
+URL = "faq"
+name = "FAQ"
 
-    [[params.links]]
-        icon = "apple"
-        title = "App Store"
-        url = "mailto:mail@example.org"
-
-    [[params.links]]
-       	iconset = "fas"
-        icon = "terminal"
-        title = "Terminal"
-        url = "https://github.com/lockbook/lockbook/blob/master/docs/installing-cli.md"
-
-    [[params.links]]
-        icon = "android"
-        title = "Android"
-        url = "https://github.com/lockbook/lockbook/blob/master/docs/installing-android.md"
-	
-	[[params.links]]
-        icon = "windows"
-        title = "Windows"
-        url = "https://github.com/lockbook/lockbook/blob/master/docs/installing-windows.md"
-
-
-    [[params.links]]
-        icon = "github"
-        title = "Github"
-        url = "https://github.com/lockbook/lockbook"
-
-      
-     [params.colors]
-        background = "#1F2020"
-        foreground = "#edf7ff"
-        hover = "#ffba82"
+[params.company]
+address = "666 Toad Lane"
+city = "Nowhere, XQ"
+country = "United States of America"
+email = "help@lockbook.app"
+[[params.plugins.css]]
+link = "plugins/bootstrap/bootstrap.min.css"
+[[params.plugins.css]]
+link = "plugins/themify-icons/themify-icons.css"
+[[params.plugins.css]]
+link = "plugins/slick/slick.css"
+[[params.plugins.css]]
+link = "plugins/custom/clean-footer.css"
+[[params.plugins.js]]
+link = "plugins/jQuery/jquery.min.js"
+[[params.plugins.js]]
+link = "plugins/bootstrap/bootstrap.min.js"
+[[params.plugins.js]]
+link = "plugins/slick/slick.min.js"
