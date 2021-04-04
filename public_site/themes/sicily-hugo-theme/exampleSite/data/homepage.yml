@@ -1,0 +1,74 @@
+####################### Banner #########################
+banner:
+  title : "We want to know more about you"
+  image : "images/banner-art.jpg"
+  copyright : "Copyright @ Landing Page - Sollar"
+  button:
+    enable : true
+    label : "Pricing"
+    link : "/pricing/"
+
+##################### Social ##########################
+description:
+  content : "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."
+      
+
+
+######################### Service #####################
+service:
+  enable : true
+  service_item:
+    # service item loop
+    - title : "It is the most advanced digital marketing and it company."
+      images:
+      - "images/service-1.png"
+      - "images/service-2.png"
+      - "images/service-3.png"
+      content : "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Consequat tristique eget amet, tempus eu at consecttur. Leo facilisi nunc viverra tellus. Ac laoreet sit vel consquat. consectetur adipiscing elit. Consequat tristique eget amet, tempus eu at consecttur. Leo facilisi nunc viverra tellus. Ac laoreet sit vel consquat."
+      button:
+        enable : true
+        label : "Check it out"
+        link : "#"
+        
+    # service item loop
+    - title : "It is a privately owned Information and cyber security company"
+      images:
+      - "images/service-1.png"
+      content : "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Consequat tristique eget amet, tempus eu at consecttur. Leo facilisi nunc viverra tellus. Ac laoreet sit vel consquat. consectetur adipiscing elit. Consequat tristique eget amet, tempus eu at consecttur. Leo facilisi nunc viverra tellus. Ac laoreet sit vel consquat."
+      button:
+        enable : true
+        label : "Check it out"
+        link : "#"
+        
+    # service item loop
+    - title : "It’s a team of experienced and skilled people with distributions"
+      images:
+      - "images/service-2.png"
+      content : "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Consequat tristique eget amet, tempus eu at consecttur. Leo facilisi nunc viverra tellus. Ac laoreet sit vel consquat. consectetur adipiscing elit. Consequat tristique eget amet, tempus eu at consecttur. Leo facilisi nunc viverra tellus. Ac laoreet sit vel consquat."
+      button:
+        enable : true
+        label : "Check it out"
+        link : "#"
+        
+    # service item loop
+    - title : "A company standing different from others"
+      images:
+      - "images/service-3.png"
+      content : "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Consequat tristique eget amet, tempus eu at consecttur. Leo facilisi nunc viverra tellus. Ac laoreet sit vel consquat. consectetur adipiscing elit. Consequat tristique eget amet, tempus eu at consecttur. Leo facilisi nunc viverra tellus. Ac laoreet sit vel consquat."
+      button:
+        enable : true
+        label : "Check it out"
+        link : "#"
+        
+################### Screenshot ########################
+screenshot:
+  enable : true
+  title : "Experience the best <br> workflow with us"
+  image : "images/screenshot.svg"
+
+  
+
+##################### Error 404 #####################
+error404:
+  image : "images/404.png"
+  copyright : "404 Not Found by Jennifer Suplee"

@@ -1,0 +1,35 @@
+{{ define "main" }}   
+
+{{ partial "page-header.html" . }}
+
+  <div class="mt-5 mb-5 vh-30" style="background: #bfffff;">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6">
+          <h1 class="mt-5 pt-5">let's collaborate!</h1>
+        </div>
+        <div class="col-md-6">
+          <form class="mt-5 pt-5 mb-5 pb-5" action="{{ site.Params.contact_form_action | safeURL }}" method="POST">
+              <div class="form-group">
+                <label style="font-weight: bold;">Name</label>
+                <input class="border rounded-0 form-control contact-input" type="text" name="name">
+              </div>
+              <div class="form-group">
+                <label style="font-weight: bold;">Email</label>
+                <input class="form-control contact-input" type="email" name="email" required="">
+              </div>
+              <div class="form-group">
+                  <label style="font-weight: bold;">Subject</label>
+                  <input class="border rounded-0 form-control contact-input" type="text" name="subject" required="">
+              </div>
+              <div class="form-group">
+                    <label style="font-weight: bold;">Message</label>
+                    <textarea class="form-control contact-input"></textarea>
+              </div>
+              <button class="btn contact-button" type="submit">Send</button></form>
+            </form>
+          </div>
+        </div>
+      </div>
+  </div>
+{{ end }}

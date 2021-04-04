@@ -1,0 +1,116 @@
+{{ define "main" }}
+
+{{ partial "page-header.html" . }}
+<section class="section">
+  <div class="container pricing-container">
+    <div class="row justify-content-center align-items-center">
+
+      <div class="col-lg-4 mb-5 mb-lg-0 px-3 pl-3 px-lg-0">
+        {{ with .Params.intro }}
+        <div class="card shadow">
+          <div class="card-body ml-3 py-5">
+          <div class="mb-3">
+            <h3>{{ .name | markdownify }}</h3>
+            <p class="lead" style="color: gray;">{{ .info | markdownify }}</p>
+          </div>
+            
+          <div class="mb-5">
+            <span class="price" style="color: black;font-weight: bold;">{{ .price }}</span>
+            <br>
+            <span style="color: gray;">{{ .price_per }}</span>
+          </div>
+            
+            <ul class="list-unstyled mb-5">
+              {{ range .services }}
+              <li class="mb-3">
+                <i class="ti-check icon-color-primary" ></i>
+                {{ . | markdownify }}
+              </li>
+              {{ end }}
+            </ul>
+            {{ if .button.enable }}
+            {{ with .button }}
+            <div class="text-center">
+              <a href="{{ .link | absURL }}" class="btn btn-primary">{{ .label }}</a>
+            </div>
+            {{ end }}
+            {{ end }}
+          </div>
+        </div>
+        {{ end }}
+      </div>
+
+      <div class="col-lg-4 col-recommended" >
+        {{ with .Params.enterprise }}
+        <div class="card border-0 shadow-lg enterprise">
+          <div class="card-body ml-3 py-5" >
+            <div class="card-body ml-3 py-5">
+              <h3 class="mb-4 white">{{ .name | markdownify }}</h3>
+              <p class="lead white">{{ .info | markdownify }}</p>
+            </div>
+            <div class="card-body ml-3 py-5">
+              <span class="price">{{ .price }}</span>
+              <br>
+              <span>{{ .price_per }}</span>
+
+            </div>
+            <ul class="list-unstyled mb-5">
+              {{ range .services }}
+                  <li>
+                    <i class="ti-check icon-color-white"></i>
+                    {{ . | markdownify }}
+                  </li>
+              {{ end }}
+            </ul>
+            {{ if .button.enable }}
+            {{ with .button }}
+            <div class="text-center">
+              <a href="{{ .link | absURL }}" class="btn btn-primary opposite">{{ .label }}</a>
+            </div>
+            {{ end }}
+            {{ end }}
+          </div>
+        </div>
+        {{ end }}
+      </div>
+
+      <div class="col-lg-4 mb-5 mb-lg-0 px-3 pl-3 px-lg-0">
+        {{ with .Params.base }}
+        <div class="card shadow">
+          <div class="card-body ml-3 py-5">
+          <div class="mb-3">
+            <h3>{{ .name | markdownify }}</h3>
+            <p class="lead" style="color: gray;">{{ .info | markdownify }}</p>
+          </div>
+            
+          <div class="mb-5">
+            <span class="price" style="color: black;font-weight: bold;">{{ .price }}</span>
+            <br>
+            <span style="color: gray;">{{ .price_per }}</span>
+          </div>
+            
+            <ul class="list-unstyled mb-5">
+              {{ range .services }}
+              <li class="mb-3">
+                <i class="ti-check icon-color-primary" ></i>
+                {{ . | markdownify }}
+              </li>
+              {{ end }}
+            </ul>
+            {{ if .button.enable }}
+            {{ with .button }}
+            <div class="text-center">
+              <a href="{{ .link | absURL }}" class="btn btn-primary">{{ .label }}</a>
+            </div>
+            {{ end }}
+            {{ end }}
+          </div>
+        </div>
+        {{ end }}
+      </div>
+
+    </div>
+  </div>
+</section>
+
+{{ end }}

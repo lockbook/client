@@ -1,0 +1,96 @@
+---
+new_page_extension: md
+auto_deploy: false
+admin_path: ''
+webhook_url: 
+sections:
+- type: heading
+  label: Homepage
+- type: document
+  path: exampleSite/data/homepage.yml
+  label: Homepage Data
+- type: heading
+  label: Blog Post
+- type: document
+  path: exampleSite/content/blog/_index.md
+  label: Blog Page
+- type: directory
+  path: exampleSite/content/blog
+  label: Post
+  create: documents
+  match: "**/*"
+  exclude: _index.md
+  templates:
+  - post
+- type: heading
+  label: Main pages
+- type: directory
+  path: exampleSite/content/about-us
+  label: About us
+  create: documents
+  match: "**/*"
+- type: directory
+  path: exampleSite/content/contact
+  label: Contact
+  create: none
+  match: "*"
+- type: directory
+  path: exampleSite/content/faq
+  label: FAQ
+  create: documents
+  match: "**/*"
+- type: directory
+  path: exampleSite/content/platform
+  label: Platform
+  create: documents
+  match: "**/*"
+- type: directory
+  path: exampleSite/content/pricing
+  label: Pricing
+  create: documents
+  match: "**/*"
+- type: directory
+  path: exampleSite/content/privacy-policy
+  label: Privacy policy
+  create: documents
+  match: "**/*"
+- type: directory
+  path: exampleSite/content/quick-start
+  label: Quick start
+  create: all
+  match: "**/*"
+- type: directory
+  path: exampleSite/content/terms-conditions
+  label: Term & conditions
+  create: none
+  match: "*"
+- type: heading
+  label: All Pages
+- type: directory
+  path: exampleSite/content
+  label: All Pages
+  create: all
+  match: "**/*"
+  templates:
+  - new-page
+- type: heading
+  label: Configuration
+- type: document
+  path: exampleSite/config.toml
+  label: Configuration
+upload_dir: exampleSite/static/images
+public_path: "/images"
+front_matter_path: ''
+use_front_matter_path: false
+file_template: ":filename:"
+build:
+  preview_env:
+  - HUGO_ENV=staging
+  - HUGO_VERSION=0.58.2
+  preview_output_directory: public
+  preview_docker_image: forestryio/hugo:latest
+  mount_path: "/srv"
+  working_dir: "/srv"
+  instant_preview_command: hugo server -D -E -F --port 8080 --bind 0.0.0.0 --renderToDisk
+    -d public
+version: 0.58.2

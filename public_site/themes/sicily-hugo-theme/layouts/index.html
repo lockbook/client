@@ -1,0 +1,61 @@
+{{ define "main" }}
+
+<!-- Banner -->
+{{ with site.Data.homepage.banner }}
+<div class="mt-5">
+    <div class="container vh-70">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="row">
+                    <div class="col pt-5 pb-5">
+                        <h1 class="pt-5" style="font-weight: bold;">{{.title}}</h1>
+                        {{ if .button.enable }}
+                          {{ with .button }}
+                            <a href="{{.link}}" class="btn btn-outline-primary btn-lg" type="button" style="font-weight: bold;">{{.label}}</a>
+                          {{end}}
+                        {{end}}
+                      </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="row">
+                    <div class="col">
+                        <img data-toggle="tooltip" data-bs-tooltip="" data-placement="bottom" class="img-fluid"
+                              src="{{ .image | absURL }}" title="{{.copyright}}">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{end}}
+
+
+<!-- Social -->
+<div class="vh-40 mt-5">
+  <div class="container">
+      <div class="row">
+          <div class="col-md-6 vh-20 d-none d-sm-block">
+              <div class="row vh-10"></div>
+              <div class="row">
+              {{ with site.Data.homepage.description }}
+                  <div class="col">
+                      <p class="text-justify">
+                        {{.content}}
+                      </p>
+                  </div>
+              {{end}}
+              </div>
+          </div>
+          <div class="col-md-6">
+            {{ range site.Params.social}}
+              <a href="{{.link}}" target="_blank">
+                  <h3 class="text-uppercase social-media-link">{{.title}}</h3>
+              </a>
+            {{end}}
+          </div>
+      </div>
+  </div>
+</div>
+
+{{ end }}

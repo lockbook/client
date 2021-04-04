@@ -1,0 +1,28 @@
+{{ "<!-- navigation -->" | safeHTML }}
+
+<nav class="navbar navbar-light navbar-expand-md navigation-clean-button mt-5">
+  <div class="container">
+    <a class="navbar-brand text-uppercase pl-3 pr-3" href="{{ site.BaseURL }}" style="font-weight: bold;color: #ffffff;background: #000000;">{{site.Title}}</a>
+      <button data-toggle="collapse" class="navbar-toggler" data-target="#navcol-1"><span class="sr-only">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
+      <div
+          class="collapse navbar-collapse" id="navcol-1">
+          <ul class="nav navbar-nav mr-auto mx-auto">
+              {{ range site.Menus.main }}
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ .URL | absURL }}" style="font-weight: bold;font-size: 16px;font-style: normal;">{{ .Name }}</a>
+                </li>
+              {{ end }}
+          </ul>
+
+          {{ if site.Params.navigation_button.enable }}
+          {{ with site.Params.navigation_button }}
+            <span class="actions">
+              <a href="{{ .link | absURL }}"  style="font-weight: bold;" class="btn btn-primary">{{ .label }}</a>
+            </span>
+          {{ end }}
+          {{ end }}
+      </div>
+  </div>
+</nav>
+
+{{ "<!-- /navigation -->" | safeHTML }}

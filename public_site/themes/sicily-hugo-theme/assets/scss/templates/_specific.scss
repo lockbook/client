@@ -1,0 +1,113 @@
+.vh-100 {
+  min-height: 100vh;
+}
+
+.vh-90 {
+  min-height: 90vh;
+}
+
+.vh-80 {
+  min-height: 80vh;
+}
+
+.vh-70 {
+  min-height: 70vh;
+}
+
+.vh-60 {
+  min-height: 60vh;
+}
+
+.vh-50 {
+  min-height: 50vh;
+}
+
+.vh-40 {
+  min-height: 40vh;
+}
+
+.vh-30 {
+  min-height: 30vh;
+}
+
+.vh-20 {
+  min-height: 20vh;
+}
+
+.vh-10 {
+  min-height: 10vh;
+}
+
+.social-media-link {
+  color: $text-color-dark !important;
+  font-weight: bold !important;
+  font-size: small;
+  border-color: $black !important;
+}
+
+.h3, h3 {
+  color: $black;
+}
+
+input.contact-input {
+  background-color: rgba(0,0,0,0) !important;
+  padding: 0px;
+  font-size: 16px;
+  border-width: 1px;
+  border-color: #000000 !important;
+  color: #000000 !important;
+  border-style: solid !important;
+  border-radius: 0px !important;
+}
+
+textarea.contact-input {
+  background-color: $transparent !important;
+  border-style: solid !important;
+  border-radius: 0px !important;
+  border: 1px solid $black !important;
+}
+
+.contact-button {
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  border-radius: 0;
+  color: #ffffff !important;
+  background-color: #000000;
+  text-decoration: none;
+  display: inline-block;
+  cursor: pointer;
+  text-align: center;
+  color: $primary-color;
+  border-color: $black;
+}
+
+.contact-button:hover {
+  background: $black !important;
+  border-color: $black !important;
+  color: #ffffff !important;
+  border-radius: 100px;
+  text-decoration: none;
+}
+
+.post-summary{
+  font-size: 1em !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+a:hover{
+  text-decoration: underline !important;
+}
+  
+.page-link{
+  background-color: rgba(0,0,0,0) !important;
+  color: #000000 !important;
+}
+
+.icon-color-primary{
+  color:$primary-color;
+}  
+
+.icon-color-white{
+  color:$white;
+}  

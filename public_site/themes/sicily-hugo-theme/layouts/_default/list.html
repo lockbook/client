@@ -1,0 +1,60 @@
+{{ define "main" }}
+
+{{ partial "page-header.html" . }}
+
+<!-- checking blog -->
+{{ if or (or (eq .Section "post") (eq .Section "blog")) (or (eq .Section "categories") (eq .Section "tags") )}}
+
+<section class="section">
+  <div class="container">
+    <div class="row">
+
+      {{ range first 1 (where .Data.Pages "Type" "featured") }}
+      <div class="col-12 mb-5 pb-5">
+        <div class="row align-items-center">
+          <div class="col-md-6 mb-4 mb-md-0">
+            <img src="{{ .Params.image | absURL }}" alt="{{.Title}}" class="img-fluid w-100">
+          </div>
+          <div class="col-md-6">
+            <h2><a href="{{ .Permalink }}" class="post-title">{{ .Title }}</a></h2>
+            <p class="post-summary">{{ .Summary }}</p>
+            <a href="{{.Permalink}}" class="btn btn-outline-primary">Read More</a>
+          </div>
+        </div>
+      </div>
+      {{ end }}
+
+      {{ $paginator := .Paginate .Data.Pages }}
+      {{ range $paginator.Pages }}
+      <div class="col-lg-4 col-md-5 col-sm-12 mb-5 ">
+        <div class="card border-0">
+          <img src="{{ .Params.image |absURL }}" alt="{{ .Title }}" class="img-fluid mb-4">
+          <div class="card-body p-0">
+            <h3><a href="{{ .Permalink }}" class="post-title">{{ .Title }}</a></h3>
+            <p class="post-summary">{{ .Summary }}</p>
+          </div>
+        </div>
+      </div>
+      {{ end }}
+      
+      <div class="col-12">
+        {{ template "_internal/pagination.html" . }}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- regular page -->
+{{ else }}
+<section class="section">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-10 mx-auto">
+        <div class="content">{{ .Content }}</div>
+      </div>
+    </div>
+  </div>
+</section>
+{{ end }}
+
+{{ end }}

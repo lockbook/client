@@ -1,0 +1,17 @@
+name = "Sicily"
+license = "MIT"
+licenselink = "https://github.com/cristianmarint/Sicily-hugo-theme/blob/master/LICENSE"
+description = "Sicily's Hugo theme for companies. It is very stylish, responsive and ready to use theme. You can use this theme to create your contemporary web design studio, creative agency. This theme has a very creative and well decorated landing page, Blog page, Contact page and many more."
+homepage = "https://github.com/cristianmarint/sicily-hugo-theme"
+tags = ['landing-page', 'fast', 'light', 'white', 'modern', 'cristianmarint', 'hugo-theme', 'hugo-templates', 'bootstrap', 'blog', 'responsive', 'clean', 'simple', 'creative', 'contact-form', 'custom-themes', 'mobile', 'minimalistic', 'pages', 'google analytics', 'customizable', 'flexbox', 'presentation', 'product', 'theme', 'typography']
+features = ['bootstrap','responsive']
+min_version = "0.64.0"
+
+[author]
+  name = "cristianmarint"
+  homepage = "https://www.cristianmarint.com/"
+
+[original]
+  name = "bigspring"
+  homepage = "http://demo.themefisher.com/bigspring-hugo/"
+  repo = "https://github.com/themefisher/bigspring-hugo-startup-theme"

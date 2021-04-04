@@ -1,0 +1,26 @@
+/*!------------------------------------------------------------------
+[MAIN STYLESHEET]
+
+PROJECT:	Project Name
+VERSION:	Versoin Number
+-------------------------------------------------------------------*/
+
+/*------------------------------------------------------------------
+[TABLE OF CONTENTS]
+-------------------------------------------------------------------*/
+
+@import 'variables';
+
+@import 'mixins';
+
+@import 'typography';
+
+@import 'buttons';
+
+@import 'common';
+
+@import 'templates/navigation.scss';
+
+@import 'templates/main.scss';
+
+@import 'templates/specific.scss';

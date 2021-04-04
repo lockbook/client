@@ -1,0 +1,18 @@
+{{ define "main" }}   
+
+{{ partial "page-header.html" . }}
+
+<div class="mt-5 mb-5 vh-30">
+    <div class="container">
+        <div class="rowm text-center">
+            <a href="{{ "/" | relURL }}">
+                {{ with site.Data.homepage.error404 }}
+                    <img data-toggle="tooltip" data-bs-tooltip="" data-placement="bottom" class="img-fluid" width="50%"
+                    src="{{ .image | absURL }}" title="{{.copyright}}">
+                    
+                {{end}}
+            </a>
+        </div>
+      </div>
+  </div>
+{{ end }}

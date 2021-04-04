@@ -1,0 +1,109 @@
+baseURL = "https://example.com/"
+disqusShortname = "sicily-hugo-theme"
+googleAnalytics = ""
+languageCode = "en-us"
+languageName = "En"
+paginate = "10"
+summaryLength = "15"
+theme = "Sicily-hugo-theme"
+title = "Sicily"
+[markup.goldmark.renderer]
+unsafe = true
+[[menu.company]]
+URL = "about-us"
+name = "About Us"
+[[menu.company]]
+URL = "quick-start"
+name = "Quick Start"
+[[menu.company]]
+URL = "terms-conditions"
+name = "Terms & Conditions"
+[[menu.main]]
+URL = "blog"
+name = "Blog"
+weight = 1
+[[menu.main]]
+URL = "pricing"
+name = "Pricing"
+weight = 2
+[[menu.main]]
+URL = "contact"
+name = "Contact"
+weight = 3
+[[menu.main]]
+URL = "faq"
+name = "FAQ"
+weight = 4
+[[menu.product]]
+URL = "pricing"
+name = "Pricing"
+[[menu.product]]
+URL = "platform"
+name = "Platform"
+[[menu.product]]
+URL = "faq"
+name = "FAQ"
+[[menu.product]]
+URL = "privacy-policy"
+name = "Privacy Policy"
+[params]
+author = "cristianmarint"
+contact_form_action = "#"
+description = "This is meta description"
+logo = "images/logo.png"
+logo_width = "200px"
+[params.company]
+address = "7657 Cl. 6, Centro"
+city = "Cartago, Valle Del Cauca"
+country = "Colombia"
+email = "contact@sicily.com"
+phone = "+57 315 270 2727"
+[params.navigation_button]
+enable = true
+label = "Get it touch"
+link = "contact"
+[[params.plugins.css]]
+link = "plugins/bootstrap/bootstrap.min.css"
+[[params.plugins.css]]
+link = "plugins/themify-icons/themify-icons.css"
+[[params.plugins.css]]
+link = "plugins/slick/slick.css"
+[[params.plugins.css]]
+link = "plugins/custom/clean-footer.css"
+[[params.plugins.js]]
+link = "plugins/jQuery/jquery.min.js"
+[[params.plugins.js]]
+link = "plugins/bootstrap/bootstrap.min.js"
+[[params.plugins.js]]
+link = "plugins/slick/slick.min.js"
+[params.preloader]
+enable = false
+preloader = ""
+[[params.footer]]
+rol_email = "pedropiedras@sicily.com"
+rol_name = "Creative Director"
+rol_representative = "Pedro Pidras"
+[[params.footer]]
+rol_email = "juanrisas@sicily.com"
+rol_name = "Chief executive officer"
+rol_representative = "Juan Risas"
+[[params.footer]]
+rol_email = "mateojosedulfo@Sicily.com"
+rol_name = "Bussines Director"
+rol_representative = "Mateo Josedulfo"
+[[params.social]]
+icon = "ti-facebook"
+link = "#"
+title = "facebook"
+[[params.social]]
+icon = "ti-twitter-alt"
+link = "https://twitter.com/cristianmarint"
+title = "twitter"
+[[params.social]]
+icon = "ti-skype"
+link = "#"
+title = "skype"
+[[params.social]]
+icon = "ti-linkedin"
+link = "#"
+title = "linkedin"
