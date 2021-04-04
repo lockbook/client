@@ -14,6 +14,7 @@ import app.lockbook.model.OnFinishAlert
 import app.lockbook.screen.DrawingActivity
 import app.lockbook.util.*
 import kotlinx.android.synthetic.main.activity_drawing.*
+import timber.log.Timber
 import java.util.*
 import kotlin.math.pow
 import kotlin.math.roundToInt
@@ -72,7 +73,7 @@ class DrawingView(context: Context, attributeSet: AttributeSet?) :
                 override fun onScaleBegin(detector: ScaleGestureDetector?): Boolean {
                     if (detector != null) {
                         onScreenFocusPoint = PointF(detector.focusX, detector.focusY)
-                        modelFocusPoint = screenToModel(onScreenFocusPoint)
+                        modelFocusPoint = screenToModel(onScreenFocusPoint) ?: return false
                     }
                     return true
                 }
@@ -299,7 +300,15 @@ class DrawingView(context: Context, attributeSet: AttributeSet?) :
         return RectF.intersects(currentStrokeBounds, eraseBounds)
     }
 
-    private fun screenToModel(screen: PointF): PointF {
+    private fun screenToModel(screen: PointF): PointF? {
+        if(screen.x.isNaN() || screen.y.isNaN()) {
+            if(!lastPoint.x.isNaN() || !lastPoint.y.isNaN()) {
+                lastPoint.set(Float.NaN, Float.NaN)
+            }
+
+            return null
+        }
+
         var modelX =
             (viewPort.width() * (screen.x / tempCanvas.clipBounds.width())) + viewPort.left
 
@@ -367,7 +376,7 @@ class DrawingView(context: Context, attributeSet: AttributeSet?) :
     }
 
     private fun handleStylusEvent(event: MotionEvent) {
-        val modelPoint = screenToModel(PointF(event.x, event.y))
+        val modelPoint = screenToModel(PointF(event.x, event.y)) ?: return
 
         if (isErasing || event.buttonState == MotionEvent.BUTTON_STYLUS_PRIMARY) {
             if ((event.action == SPEN_ACTION_DOWN || isErasing) && (!erasePoints.first.x.isNaN() || !erasePoints.second.x.isNaN())) {
