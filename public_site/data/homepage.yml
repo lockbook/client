@@ -1,10 +1,8 @@
 ####################### Banner #########################
 banner:
-  title : "Secure. Private. Reliable."
+  title : "The best place for individuals and teams to store their thoughts."
   image : "images/screenshots.png"
 
 ##################### Social ##########################
 description:
-  content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis a hendrerit dolor. Quisque vehicula commodo libero at vulputate. Curabitur dictum ornare libero. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Phasellus quis enim id velit tristique tempus. Donec placerat tortor at nulla lacinia, eu commodo ligula mattis. Aenean fringilla faucibus dolor et malesuada. Cras mi libero, pharetra ac est tempus, varius efficitur turpis. Praesent a tellus mi.
-
-            Pellentesque iaculis ac magna eu aliquam. Fusce at dolor tempus, cursus felis quis, bibendum lorem. Morbi id risus purus. Aliquam sit amet vulputate sapien. Donec tincidunt erat nisl."
+  content: "All documents are compressed, encrypted and backed up. No one besides you and your team can view your files. Content is synced to rich native clients on every platform. We never collect any personal information. All our technology is 100% open source and we have a straightforward business model ($/gb). Download a client to try it for yourself."
