@@ -18,6 +18,7 @@ mod intro;
 mod menubar;
 mod messages;
 mod settings;
+mod tree_model;
 mod util;
 
 use std::cell::RefCell;

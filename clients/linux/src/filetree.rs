@@ -57,6 +57,7 @@ impl FileTree {
         tree.connect_button_press_event(Self::on_button_press(&popup));
         tree.connect_key_press_event(Self::on_key_press(&m));
         tree.connect_row_activated(Self::on_row_activated(&m));
+        tree.set_reorderable(true);
 
         let sel = tree.get_selection();
         sel.connect_changed(Self::on_selection_change(&popup));
@@ -424,7 +425,11 @@ impl FileTreePopup {
 
         let at_least_1 = n_selected > 0;
         let only_1 = n_selected == 1;
-        let is_root = tsel.iter_is_selected(&tmodel.get_iter_first().unwrap());
+        let is_root = if let Some(first) = &tmodel.get_iter_first() {
+            tsel.iter_is_selected(first)
+        } else {
+            false
+        };
 
         for (key, is_enabled) in &[
             (PopupItem::NewFolder, only_1),
