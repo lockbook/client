@@ -14,6 +14,7 @@ mod background_work;
 mod editmode;
 mod error;
 mod filetree;
+mod file_widget;
 mod intro;
 mod menubar;
 mod messages;

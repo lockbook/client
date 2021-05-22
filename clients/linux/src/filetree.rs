@@ -25,6 +25,7 @@ use crate::closure;
 use crate::error::LbResult;
 use crate::messages::{Messenger, Msg, MsgFn};
 use crate::util::gui::RIGHT_CLICK;
+use crate::file_widget::FileTreeModel;
 
 #[macro_export]
 macro_rules! tree_iter_value {
@@ -42,7 +43,7 @@ macro_rules! tree_iter_value {
 
 pub struct FileTree {
     cols: Vec<FileTreeCol>,
-    model: GtkTreeStore,
+    model: FileTreeModel,
     tree: GtkTreeView,
 }
 
@@ -50,7 +51,7 @@ impl FileTree {
     pub fn new(m: &Messenger, hidden_cols: &Vec<String>) -> Self {
         let popup = Rc::new(FileTreePopup::new(&m));
 
-        let model = GtkTreeStore::new(&FileTreeCol::all_types());
+        let model = FileTreeModel::new(&FileTreeCol::all_types());
         let tree = GtkTreeView::with_model(&model);
         tree.set_enable_search(false);
         tree.connect_columns_changed(|t| t.set_headers_visible(t.get_columns().len() > 1));
@@ -68,6 +69,8 @@ impl FileTree {
                 tree.append_column(&c.to_tree_view_col());
             }
         }
+
+        tree.set_reorderable(true);
 
         Self { cols, model, tree }
     }

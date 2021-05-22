@@ -1276,6 +1276,7 @@ dependencies = [
  "gio",
  "glib",
  "gtk",
+ "gtk-sys",
  "lockbook-core",
  "lockbook-models",
  "pango",
