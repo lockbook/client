@@ -1,12 +1,10 @@
-use crate::client;
 use crate::model::state::Config;
-use crate::repo::{account_repo, file_metadata_repo};
+use crate::repo::account_repo;
 use crate::service::file_service;
 use crate::CoreError;
+use crate::{client, model::repo::RepoSource};
 use lockbook_models::api::{FileUsage, GetUsageRequest, GetUsageResponse};
-use lockbook_models::file_metadata::FileType::Document;
 use serde::Serialize;
-use uuid::Uuid;
 
 pub const BYTE: u64 = 1;
 pub const KILOBYTE: u64 = BYTE * 1000;
@@ -48,7 +46,7 @@ pub fn bytes_to_human(size: u64) -> String {
 }
 
 pub fn server_usage(config: &Config) -> Result<GetUsageResponse, CoreError> {
-    let acc = account_repo::get_account(config)?;
+    let acc = account_repo::get(config)?;
 
     client::request(&acc, GetUsageRequest {}).map_err(CoreError::from)
 }
@@ -76,15 +74,11 @@ pub fn get_usage(config: &Config) -> Result<UsageMetrics, CoreError> {
 }
 
 pub fn get_uncompressed_usage(config: &Config) -> Result<UsageItemMetric, CoreError> {
-    let doc_ids: Vec<Uuid> = file_metadata_repo::get_all(&config)?
-        .into_iter()
-        .filter(|f| f.file_type == Document)
-        .map(|f| f.id)
-        .collect();
+    let doc_ids = file_service::get_all_document_ids(config, RepoSource::Local)?;
 
     let mut local_usage: u64 = 0;
     for id in doc_ids {
-        local_usage += file_service::read_document(&config, id)?.len() as u64
+        local_usage += file_service::read_document(&config, RepoSource::Local, id)?.len() as u64
     }
 
     let readable = bytes_to_human(local_usage);

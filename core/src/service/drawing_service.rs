@@ -1,3 +1,4 @@
+use crate::model::repo::RepoSource;
 use crate::model::state::Config;
 use crate::service::file_service;
 use crate::{core_err_unexpected, CoreError};
@@ -52,11 +53,11 @@ pub fn save_drawing(config: &Config, id: Uuid, drawing_bytes: &[u8]) -> Result<(
         },
     };
 
-    file_service::write_document(config, id, drawing_bytes)
+    file_service::write_document(config, RepoSource::Local, id, drawing_bytes)
 }
 
 pub fn get_drawing(config: &Config, id: Uuid) -> Result<Drawing, CoreError> {
-    let drawing_bytes = file_service::read_document(config, id)?;
+    let drawing_bytes = file_service::read_document(config, RepoSource::Local, id)?;
     let drawing_string = String::from(String::from_utf8_lossy(&drawing_bytes));
 
     match serde_json::from_str::<Drawing>(drawing_string.as_str()) {
@@ -308,8 +309,9 @@ fn get_drawing_bounds(strokes: &[Stroke]) -> (u32, u32) {
 
 #[cfg(test)]
 mod unit_tests {
+    use crate::model::repo::RepoSource;
     use crate::model::state::temp_config;
-    use crate::repo::{account_repo, file_metadata_repo};
+    use crate::repo::{account_repo, file_repo};
     use crate::service::drawing_service::SupportedImageFormats;
     use crate::service::{drawing_service, file_encryption_service, file_service};
     use lockbook_crypto::pubkey;
@@ -382,12 +384,14 @@ mod unit_tests {
             private_key: keys,
         };
 
-        account_repo::insert_account(config, &account).unwrap();
+        account_repo::insert(config, &account).unwrap();
         let root = file_encryption_service::create_metadata_for_root_folder(&account).unwrap();
-        file_metadata_repo::insert(config, &root).unwrap();
+        file_repo::insert_metadata(config, RepoSource::Local, &root).unwrap();
 
-        let folder = file_service::create(config, "folder", root.id, Folder).unwrap();
-        let document = file_service::create(config, "doc", folder.id, Document).unwrap();
+        let folder =
+            file_service::create(config, RepoSource::Local, "folder", root.id, Folder).unwrap();
+        let document =
+            file_service::create(config, RepoSource::Local, "doc", folder.id, Document).unwrap();
 
         let drawing = Drawing {
             scale: 0.0,
@@ -405,6 +409,7 @@ mod unit_tests {
 
         file_service::write_document(
             config,
+            RepoSource::Local,
             document.id,
             serde_json::to_string(&drawing).unwrap().as_bytes(),
         )
@@ -425,12 +430,14 @@ mod unit_tests {
             private_key: keys,
         };
 
-        account_repo::insert_account(config, &account).unwrap();
+        account_repo::insert(config, &account).unwrap();
         let root = file_encryption_service::create_metadata_for_root_folder(&account).unwrap();
-        file_metadata_repo::insert(config, &root).unwrap();
+        file_repo::insert_metadata(config, RepoSource::Local, &root).unwrap();
 
-        let folder = file_service::create(config, "folder", root.id, Folder).unwrap();
-        let document = file_service::create(config, "doc", folder.id, Document).unwrap();
+        let folder =
+            file_service::create(config, RepoSource::Local, "folder", root.id, Folder).unwrap();
+        let document =
+            file_service::create(config, RepoSource::Local, "doc", folder.id, Document).unwrap();
 
         let drawing = Drawing {
             scale: 0.0,
@@ -448,6 +455,7 @@ mod unit_tests {
 
         file_service::write_document(
             config,
+            RepoSource::Local,
             document.id,
             serde_json::to_string(&drawing).unwrap().as_bytes(),
         )

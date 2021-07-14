@@ -1,5 +1,6 @@
+use crate::model::repo::RepoSource;
 use crate::model::state::Config;
-use crate::repo::{account_repo, file_metadata_repo};
+use crate::repo::{account_repo, file_repo};
 use crate::{core_err_unexpected, CoreError};
 use lockbook_crypto::{pubkey, symkey};
 use lockbook_models::account::Account;
@@ -10,8 +11,8 @@ use std::collections::HashMap;
 use uuid::Uuid;
 
 pub fn decrypt_key_for_file(config: &Config, id: Uuid) -> Result<AESKey, CoreError> {
-    let account = account_repo::get_account(&config)?;
-    let parents = file_metadata_repo::get_with_all_parents(&config, id)?;
+    let account = account_repo::get(&config)?;
+    let parents = file_repo::get_with_ancestors(&config, RepoSource::Local, id)?;
     let access_key = parents
         .get(&id)
         .ok_or(())
@@ -46,7 +47,7 @@ pub fn re_encrypt_key_for_file(
 }
 
 pub fn get_key_for_user(config: &Config, id: Uuid) -> Result<UserAccessInfo, CoreError> {
-    let account = account_repo::get_account(&config)?;
+    let account = account_repo::get(&config)?;
     let key = decrypt_key_for_file(&config, id)?;
     let public_key = account.public_key();
     let key_encryption_key = pubkey::get_aes_key(&account.private_key, &account.public_key())
@@ -66,7 +67,7 @@ pub fn create_file_metadata(
     file_type: FileType,
     parent: Uuid,
 ) -> Result<FileMetadata, CoreError> {
-    let account = account_repo::get_account(&config)?;
+    let account = account_repo::get(&config)?;
     let parent_key = decrypt_key_for_file(&config, parent)?;
     let folder_access_keys =
         symkey::encrypt(&parent_key, &symkey::generate_key()).map_err(core_err_unexpected)?;
@@ -96,14 +97,14 @@ pub fn create_metadata_for_root_folder(account: &Account) -> Result<FileMetadata
         .map_err(core_err_unexpected)?;
     let encrypted_access_key =
         symkey::encrypt(&key_encryption_key, &key).map_err(core_err_unexpected)?;
-    let use_access_key = UserAccessInfo {
+    let user_access_key = UserAccessInfo {
         username: account.username.clone(),
         encrypted_by: account.public_key(),
         access_key: encrypted_access_key,
     };
 
     let mut user_access_keys = HashMap::new();
-    user_access_keys.insert(account.username.clone(), use_access_key);
+    user_access_keys.insert(account.username.clone(), user_access_key);
 
     Ok(FileMetadata {
         file_type: Folder,
@@ -140,17 +141,20 @@ pub fn read_document(
 
 pub fn user_read_document(
     account: &Account,
-    file: &EncryptedDocument,
+    maybe_file: &Option<EncryptedDocument>,
     user_access_info: &UserAccessInfo,
 ) -> Result<DecryptedDocument, CoreError> {
-    let key_decryption_key =
-        pubkey::get_aes_key(&account.private_key, &user_access_info.encrypted_by)
-            .map_err(core_err_unexpected)?;
-    let key = symkey::decrypt(&key_decryption_key, &user_access_info.access_key)
-        .map_err(core_err_unexpected)?;
-
-    let content = symkey::decrypt(&key, file).map_err(core_err_unexpected)?;
-    Ok(content)
+    match maybe_file {
+        None => Ok(Vec::new()),
+        Some(file) => {
+            let key_decryption_key =
+                pubkey::get_aes_key(&account.private_key, &user_access_info.encrypted_by)
+                    .map_err(core_err_unexpected)?;
+            let key = symkey::decrypt(&key_decryption_key, &user_access_info.access_key)
+                .map_err(core_err_unexpected)?;
+            Ok(symkey::decrypt(&key, file).map_err(core_err_unexpected)?)
+        }
+    }
 }
 
 pub fn get_name(config: &Config, meta: &FileMetadata) -> Result<String, CoreError> {
@@ -160,10 +164,10 @@ pub fn get_name(config: &Config, meta: &FileMetadata) -> Result<String, CoreErro
 
 pub fn create_name(
     config: &Config,
-    meta: &FileMetadata,
+    parent: Uuid,
     name: &str,
 ) -> Result<SecretFileName, CoreError> {
-    let parent_key = decrypt_key_for_file(&config, meta.parent)?;
+    let parent_key = decrypt_key_for_file(&config, parent)?;
     symkey::encrypt_and_hmac(&parent_key, name).map_err(core_err_unexpected)
 }
 

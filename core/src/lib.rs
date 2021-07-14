@@ -9,9 +9,10 @@ use crate::model::client_conversion::{
     generate_client_file_metadata, generate_client_work_calculated, ClientFileMetadata,
     ClientWorkCalculated,
 };
+use crate::model::repo::RepoSource;
 use crate::model::state::Config;
-use crate::repo::local_changes_repo;
-use crate::repo::{account_repo, file_metadata_repo};
+use crate::repo::file_repo;
+use crate::repo::{account_repo, last_updated_repo};
 use crate::service::db_state_service::State;
 use crate::service::drawing_service::SupportedImageFormats;
 use crate::service::sync_service::SyncProgress;
@@ -214,7 +215,7 @@ pub enum GetAccountError {
 }
 
 pub fn get_account(config: &Config) -> Result<Account, Error<GetAccountError>> {
-    account_repo::get_account(&config).map_err(|e| match e {
+    account_repo::get(&config).map_err(|e| match e {
         CoreError::AccountNonexistent => UiError(GetAccountError::NoAccount),
         _ => unexpected!("{:#?}", e),
     })
@@ -266,7 +267,7 @@ pub fn write_document(
     id: Uuid,
     content: &[u8],
 ) -> Result<(), Error<WriteToDocumentError>> {
-    file_service::write_document(&config, id, content).map_err(|e| match e {
+    file_service::write_document(&config, RepoSource::Local, id, content).map_err(|e| match e {
         CoreError::AccountNonexistent => UiError(WriteToDocumentError::NoAccount),
         CoreError::FileNonexistent => UiError(WriteToDocumentError::FileDoesNotExist),
         CoreError::FileNotDocument => UiError(WriteToDocumentError::FolderTreatedAsDocument),
@@ -290,7 +291,7 @@ pub fn create_file(
     parent: Uuid,
     file_type: FileType,
 ) -> Result<ClientFileMetadata, Error<CreateFileError>> {
-    file_service::create(&config, name, parent, file_type)
+    file_service::create(&config, RepoSource::Local, name, parent, file_type)
         .map_err(|e| match e {
             CoreError::AccountNonexistent => UiError(CreateFileError::NoAccount),
             CoreError::FileNotFolder => UiError(CreateFileError::DocumentTreatedAsFolder),
@@ -312,7 +313,7 @@ pub enum GetRootError {
 }
 
 pub fn get_root(config: &Config) -> Result<ClientFileMetadata, Error<GetRootError>> {
-    match file_metadata_repo::get_root(&config) {
+    match file_repo::maybe_get_root(&config, RepoSource::Local) {
         Ok(file_metadata) => match file_metadata {
             None => Err(UiError(GetRootError::NoRoot)),
             Some(file_metadata) => match generate_client_file_metadata(config, &file_metadata) {
@@ -333,7 +334,7 @@ pub fn get_children(
     config: &Config,
     id: Uuid,
 ) -> Result<Vec<ClientFileMetadata>, Error<GetChildrenError>> {
-    let children: Vec<FileMetadata> = file_metadata_repo::get_children_non_recursively(&config, id)
+    let children: Vec<FileMetadata> = file_repo::get_children(&config, RepoSource::Local, id)
         .map_err(|e| unexpected!("{:#?}", e))?;
 
     let mut client_children = vec![];
@@ -357,7 +358,7 @@ pub fn get_and_get_children_recursively(
     config: &Config,
     id: Uuid,
 ) -> Result<Vec<FileMetadata>, Error<GetAndGetChildrenError>> {
-    file_metadata_repo::get_and_get_children_recursively(&config, id).map_err(|e| match e {
+    file_repo::get_with_descendants(&config, RepoSource::Local, id).map_err(|e| match e {
         CoreError::FileNonexistent => UiError(GetAndGetChildrenError::FileDoesNotExist),
         CoreError::FileNotFolder => UiError(GetAndGetChildrenError::DocumentTreatedAsFolder),
         _ => unexpected!("{:#?}", e),
@@ -373,7 +374,7 @@ pub fn get_file_by_id(
     config: &Config,
     id: Uuid,
 ) -> Result<ClientFileMetadata, Error<GetFileByIdError>> {
-    file_metadata_repo::get(&config, id)
+    file_repo::get_metadata(&config, RepoSource::Local, id)
         .map_err(|e| match e {
             CoreError::FileNonexistent => UiError(GetFileByIdError::NoFileWithThatId),
             _ => unexpected!("{:#?}", e),
@@ -411,12 +412,8 @@ pub enum FileDeleteError {
 }
 
 pub fn delete_file(config: &Config, id: Uuid) -> Result<(), Error<FileDeleteError>> {
-    match file_metadata_repo::get(&config, id) {
-        Ok(meta) => match meta.file_type {
-            FileType::Document => file_service::delete_document(&config, id),
-            FileType::Folder => file_service::delete_folder(&config, id),
-        }
-        .map_err(|e| match e {
+    match file_repo::get_metadata(&config, RepoSource::Local, id) {
+        Ok(_) => file_service::delete(&config, RepoSource::Local, id).map_err(|e| match e {
             CoreError::RootModificationInvalid => UiError(FileDeleteError::CannotDeleteRoot),
             CoreError::FileNonexistent => UiError(FileDeleteError::FileDoesNotExist),
             _ => unexpected!("{:#?}", e),
@@ -436,7 +433,7 @@ pub fn read_document(
     config: &Config,
     id: Uuid,
 ) -> Result<DecryptedDocument, Error<ReadDocumentError>> {
-    file_service::read_document(&config, id).map_err(|e| match e {
+    file_service::read_document(&config, RepoSource::Local, id).map_err(|e| match e {
         CoreError::FileNotDocument => UiError(ReadDocumentError::TreatedFolderAsDocument),
         CoreError::AccountNonexistent => UiError(ReadDocumentError::NoAccount),
         CoreError::FileNonexistent => UiError(ReadDocumentError::FileDoesNotExist),
@@ -458,13 +455,15 @@ pub fn save_document_to_disk(
     id: Uuid,
     location: String,
 ) -> Result<(), Error<SaveDocumentToDiskError>> {
-    file_service::save_document_to_disk(&config, id, location).map_err(|e| match e {
-        CoreError::FileNotDocument => UiError(SaveDocumentToDiskError::TreatedFolderAsDocument),
-        CoreError::AccountNonexistent => UiError(SaveDocumentToDiskError::NoAccount),
-        CoreError::FileNonexistent => UiError(SaveDocumentToDiskError::FileDoesNotExist),
-        CoreError::DiskPathInvalid => UiError(SaveDocumentToDiskError::BadPath),
-        CoreError::DiskPathTaken => UiError(SaveDocumentToDiskError::FileAlreadyExistsInDisk),
-        _ => unexpected!("{:#?}", e),
+    file_service::save_document_to_disk(&config, RepoSource::Local, id, location).map_err(|e| {
+        match e {
+            CoreError::FileNotDocument => UiError(SaveDocumentToDiskError::TreatedFolderAsDocument),
+            CoreError::AccountNonexistent => UiError(SaveDocumentToDiskError::NoAccount),
+            CoreError::FileNonexistent => UiError(SaveDocumentToDiskError::FileDoesNotExist),
+            CoreError::DiskPathInvalid => UiError(SaveDocumentToDiskError::BadPath),
+            CoreError::DiskPathTaken => UiError(SaveDocumentToDiskError::FileAlreadyExistsInDisk),
+            _ => unexpected!("{:#?}", e),
+        }
     })
 }
 
@@ -488,7 +487,8 @@ pub enum ListMetadatasError {
 pub fn list_metadatas(
     config: &Config,
 ) -> Result<Vec<ClientFileMetadata>, Error<ListMetadatasError>> {
-    let metas = file_metadata_repo::get_all(&config).map_err(|e| unexpected!("{:#?}", e))?;
+    let metas = file_repo::get_all_metadata(&config, RepoSource::Local)
+        .map_err(|e| unexpected!("{:#?}", e))?;
     let mut client_metas = vec![];
 
     for meta in metas {
@@ -514,7 +514,7 @@ pub fn rename_file(
     id: Uuid,
     new_name: &str,
 ) -> Result<(), Error<RenameFileError>> {
-    file_service::rename_file(&config, id, new_name).map_err(|e| match e {
+    file_service::rename(&config, RepoSource::Local, id, new_name).map_err(|e| match e {
         CoreError::FileNonexistent => UiError(RenameFileError::FileDoesNotExist),
         CoreError::FileNameEmpty => UiError(RenameFileError::NewNameEmpty),
         CoreError::FileNameContainsSlash => UiError(RenameFileError::NewNameContainsSlash),
@@ -536,7 +536,7 @@ pub enum MoveFileError {
 }
 
 pub fn move_file(config: &Config, id: Uuid, new_parent: Uuid) -> Result<(), Error<MoveFileError>> {
-    file_service::move_file(&config, id, new_parent).map_err(|e| match e {
+    file_service::move_(&config, RepoSource::Local, id, new_parent).map_err(|e| match e {
         CoreError::RootModificationInvalid => UiError(MoveFileError::CannotMoveRoot),
         CoreError::FileNotFolder => UiError(MoveFileError::DocumentTreatedAsFolder),
         CoreError::FileNonexistent => UiError(MoveFileError::FileDoesNotExist),
@@ -573,10 +573,10 @@ pub enum GetLocalChangesError {
 }
 
 pub fn get_local_changes(config: &Config) -> Result<Vec<Uuid>, Error<GetLocalChangesError>> {
-    Ok(local_changes_repo::get_all_local_changes(&config)
+    Ok(file_repo::get_all_metadata_changes(config)
         .map_err(|err| unexpected!("{:#?}", err))?
         .iter()
-        .map(|change| change.id)
+        .map(|f| f.id)
         .collect())
 }
 
@@ -607,7 +607,7 @@ pub enum SetLastSyncedError {
 }
 
 pub fn set_last_synced(config: &Config, last_sync: u64) -> Result<(), Error<SetLastSyncedError>> {
-    file_metadata_repo::set_last_synced(&config, last_sync).map_err(|e| unexpected!("{:#?}", e))
+    last_updated_repo::set(&config, last_sync).map_err(|e| unexpected!("{:#?}", e))
 }
 
 #[derive(Debug, Serialize, EnumIter)]
@@ -616,7 +616,7 @@ pub enum GetLastSyncedError {
 }
 
 pub fn get_last_synced(config: &Config) -> Result<i64, Error<GetLastSyncedError>> {
-    file_metadata_repo::get_last_updated(&config)
+    last_updated_repo::get(&config)
         .map(|n| n as i64)
         .map_err(|e| unexpected!("{:#?}", e))
 }
@@ -806,6 +806,7 @@ pub mod loggers;
 pub mod model;
 pub mod repo;
 pub mod service;
+pub mod utils;
 
 pub static DEFAULT_API_LOCATION: &str = "https://api.prod.lockbook.net";
 pub static CORE_CODE_VERSION: &str = env!("CARGO_PKG_VERSION");
